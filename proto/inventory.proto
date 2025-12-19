@@ -2,6 +2,13 @@ syntax = "proto3";
 
 service InventoryService {
     rpc SearchAllProducts(Empty) returns (ProductsResponse) {}
+    // 1. Nova operação adicionada 
+    rpc SearchProductByID(Payload) returns (ProductResponse) {}
+}
+
+// 2. Definição do Payload adicionada 
+message Payload {
+    int32 id = 1;
 }
 
 message Empty{}
