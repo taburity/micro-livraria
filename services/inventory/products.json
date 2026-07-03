@@ -3,6 +3,7 @@
         "id": 1,
         "name": "Refactoring",
         "author": "Martin Fowler",
+        "student_name": "Ayumi Rayani da Silva Lima",
         "quantity": 10,
         "price": 79.92,
         "photo": "/img/refactoring.png"
