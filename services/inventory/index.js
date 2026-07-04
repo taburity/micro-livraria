@@ -10,15 +10,27 @@ const packageDefinition = protoLoader.loadSync('proto/inventory.proto', {
 });
 
 const inventoryProto = grpc.loadPackageDefinition(packageDefinition);
-
 const server = new grpc.Server();
 
-// implementa os métodos do InventoryService
 server.addService(inventoryProto.InventoryService.service, {
     searchAllProducts: (_, callback) => {
         callback(null, {
             products: products,
         });
+    },
+
+    SearchProductByID: (payload, callback) => {
+        const product = products.find((product) => product.id == payload.request.id);
+        
+        if (product) {
+            product.student_name = "Ricardo"; 
+            callback(null, product);
+        } else {
+            callback({
+                code: grpc.status.NOT_FOUND,
+                details: "Produto não encontrado"
+            });
+        }
     },
 });
 
