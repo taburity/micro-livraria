@@ -42,6 +42,33 @@ app.get('/shipping/:cep', (req, res, next) => {
     );
 });
 
+app.get('/product/:id', (req, res, next) => {
+    const productId = parseInt(req.params.id);
+
+    inventory.SearchAllProducts(null, (err, data) => {
+        if (err || !data || !data.products) {
+            console.error(err);
+            return res.status(500).send({ error: 'something failed :(' });
+        }
+
+        const productData = data.products.find(p => p.id === productId);
+
+        if (!productData) {
+            return res.status(404).send({ error: 'product not found :(' });
+        }
+
+        res.json({
+            id: productData.id,
+            name: productData.name,
+            quantity: productData.quantity,
+            price: productData.price,
+            photo: productData.photo,
+            author: productData.author,
+            student_name: "Luana Siqueira de Sousa"
+        });
+    });
+});
+
 /**
  * Inicia o router
  */
