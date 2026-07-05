@@ -6,9 +6,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
-/**
- * Retorna a lista de produtos da loja via InventoryService
- */
+
 app.get('/products', (req, res, next) => {
     inventory.SearchAllProducts(null, (err, data) => {
         if (err) {
@@ -20,9 +18,8 @@ app.get('/products', (req, res, next) => {
     });
 });
 
-/**
- * Consulta o frete de envio no ShippingService
- */
+
+
 app.get('/shipping/:cep', (req, res, next) => {
     shipping.GetShippingRate(
         {
@@ -42,9 +39,33 @@ app.get('/shipping/:cep', (req, res, next) => {
     );
 });
 
-/**
- * Inicia o router
- */
+
+app.get('/product/:id', (req, res, next) => {
+    const productId = parseInt(req.params.id);
+
+  
+    inventory.SearchAllProducts(null, (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send({ error: 'something failed :(' });
+        }
+
+       
+        const product = data.products.find(p => p.id === productId);
+
+        if (!product) {
+            return res.status(404).send({ error: 'Product not found' });
+        }
+
+       
+        product.student_name = "Laysa Beatriz"; 
+
+       
+        res.json(product);
+    });
+});
+
+
 app.listen(3000, () => {
     console.log('Controller Service running on http://127.0.0.1:3000');
 });
