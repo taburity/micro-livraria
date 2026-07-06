@@ -20,6 +20,15 @@ server.addService(inventoryProto.InventoryService.service, {
             products: products,
         });
     },
+    SearchProductById: (payload, callback) => {
+        let product = products.find((product) => product.id == payload.request.id);
+
+        if (product){
+            product = {...product, student_name: "Miguel Antônio Barbosa Caetano"};
+        }
+
+        callback(null, product);
+    }
 });
 
 server.bindAsync('127.0.0.1:3002', grpc.ServerCredentials.createInsecure(), () => {

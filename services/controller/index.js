@@ -23,23 +23,15 @@ app.get('/products', (req, res, next) => {
 /**
  * Consulta o frete de envio no ShippingService
  */
-app.get('/shipping/:cep', (req, res, next) => {
-    shipping.GetShippingRate(
-        {
-            cep: req.params.cep,
-        },
-        (err, data) => {
-            if (err) {
-                console.error(err);
-                res.status(500).send({ error: 'something failed :(' });
-            } else {
-                res.json({
-                    cep: req.params.cep,
-                    value: data.value,
-                });
-            }
+app.get('/product/:id', (req, res, next) => {
+    inventory.SearchProductById({id: req.params.id}, (err, product) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send({error: 'something failed :(' });
+        } else {
+            res.json(product);
         }
-    );
+    });
 });
 
 /**
