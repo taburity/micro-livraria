@@ -21,10 +21,14 @@ server.addService(inventoryProto.InventoryService.service, {
         });
     },
     SearchProductByID: (payload, callback) => {
-        callback(
-            null,
-            products.find((product) => product.id == payload.request.id)
+        const product = products.find(
+            (product) => product.id == payload.request.id
         );
+
+        callback(null, {
+            ...product,
+            student_name: "Pedro"
+        });
     },
 });
 
