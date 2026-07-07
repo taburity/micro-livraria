@@ -5,10 +5,6 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
-
-/**
- * Retorna a lista de produtos da loja via InventoryService
- */
 app.get('/products', (req, res, next) => {
     inventory.SearchAllProducts(null, (err, data) => {
         if (err) {
@@ -19,10 +15,6 @@ app.get('/products', (req, res, next) => {
         }
     });
 });
-
-/**
- * Consulta o frete de envio no ShippingService
- */
 app.get('/shipping/:cep', (req, res, next) => {
     shipping.GetShippingRate(
         {
@@ -42,9 +34,19 @@ app.get('/shipping/:cep', (req, res, next) => {
     );
 });
 
-/**
- * Inicia o router
- */
+app.get('/product/:id', (req, res, next) => {
+    inventory.SearchProductByID({ id: req.params.id }, (err, product) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send({ error: 'something failed :(' });
+        } else {
+
+            res.json(product);
+        }
+    });
+});
+
+
 app.listen(3000, () => {
     console.log('Controller Service running on http://127.0.0.1:3000');
 });
