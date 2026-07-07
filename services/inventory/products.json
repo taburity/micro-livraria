@@ -5,7 +5,8 @@
         "author": "Martin Fowler",
         "quantity": 10,
         "price": 79.92,
-        "photo": "/img/refactoring.png"
+        "photo": "/img/refactoring.png",
+        "student_name": "Jose"
     },
     {
         "id": 2,
@@ -13,7 +14,8 @@
         "author": "Marco Tulio Valente",
         "quantity": 10,
         "price": 65.9,
-        "photo": "/img/esm.png"
+        "photo": "/img/esm.png",
+        "student_name": "Jose"
     },
     {
         "id": 3,
@@ -21,6 +23,7 @@
         "author": "Erich Gamma, John Vlissides, Richard Helm, Ralph Johnson",
         "quantity": 10,
         "price": 67.99,
-        "photo": "/img/design.png"
+        "photo": "/img/design.png",
+        "student_name": "Jose"
     }
 ]
