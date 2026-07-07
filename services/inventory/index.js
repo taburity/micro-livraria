@@ -23,7 +23,7 @@ server.addService(inventoryProto.InventoryService.service, {
     SearchProductByID: (payload, callback) => {
         callback(
             null,
-            Object.assign(products.find((product) => product.id == payload.request.id), { student_name: "Joaci" })
+            Object.assign(products.find((product) => product.id == payload.request.id), { student_name: "Joaci" })        
         );
     },
 });
