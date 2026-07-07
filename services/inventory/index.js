@@ -20,9 +20,18 @@ server.addService(inventoryProto.InventoryService.service, {
             products: products,
         });
     },
+    SearchProductByID: (payload, callback) => {
+        let product = products.find((product) => product.id == payload.request.id);
+        if (product) {
+            product.student_name = "Carlos"; 
+        }
+
+        callback(null, product);
+    },
 });
 
-server.bindAsync('127.0.0.1:3002', grpc.ServerCredentials.createInsecure(), () => {
-    console.log('Inventory Service running at http://127.0.0.1:3002');
+// Usando 0.0.0.0 para garantir a compatibilidade com o Codespaces
+server.bindAsync('0.0.0.0:3002', grpc.ServerCredentials.createInsecure(), () => {
+    console.log('Inventory Service running at http://0.0.0.0:3002');
     server.start();
 });

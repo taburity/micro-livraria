@@ -42,9 +42,20 @@ app.get('/shipping/:cep', (req, res, next) => {
     );
 });
 
+app.get('/product/:id', (req, res, next) => {
+    inventory.SearchProductByID({ id: req.params.id }, (err, product) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send({ error: 'something failed :(' });
+        } else {
+            res.json(product);
+        }
+    });
+});
+
 /**
  * Inicia o router
  */
-app.listen(3000, () => {
-    console.log('Controller Service running on http://127.0.0.1:3000');
+app.listen(3003, () => {
+    console.log('Controller Service running on http://127.0.0.1:3003');
 });

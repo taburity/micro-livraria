@@ -36,7 +36,8 @@ function newBook(book) {
 }
 
 function calculateShipping(id, cep) {
-    fetch('http://localhost:3000/shipping/' + cep)
+    // Porta alterada de 3000 para 3003 aqui
+    fetch('http://localhost:3003/shipping/' + cep)
         .then((data) => {
             if (data.ok) {
                 return data.json();
@@ -55,7 +56,8 @@ function calculateShipping(id, cep) {
 document.addEventListener('DOMContentLoaded', function () {
     const books = document.querySelector('.books');
 
-    fetch('http://localhost:3000/products')
+    // Porta alterada de 3000 para 3003 aqui
+    fetch('http://localhost:3003/products')
         .then((data) => {
             if (data.ok) {
                 return data.json();
