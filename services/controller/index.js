@@ -19,7 +19,24 @@ app.get('/products', (req, res, next) => {
         }
     });
 });
-
+/**
+ * Retorna um produto pelo ID via InventoryService
+ */
+app.get('/product/:id', (req, res) => {
+    inventory.SearchProductByID(
+        {
+            id: parseInt(req.params.id),
+        },
+        (err, data) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send({ error: 'something failed :(' });
+            } else {
+                res.json(data);
+            }
+        }
+    );
+});
 /**
  * Consulta o frete de envio no ShippingService
  */
