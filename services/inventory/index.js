@@ -20,6 +20,22 @@ server.addService(inventoryProto.InventoryService.service, {
             products: products,
         });
     },
+    searchProductByID: (payload, callback) => {
+        const product = products.find(
+            (product) => product.id == payload.request.id
+        );
+
+        if (!product) {
+            return callback(null, {
+                student_name: 'Augusto Jorge Brandão Mendonça',
+            });
+        }
+
+        callback(null, {
+            ...product,
+            student_name: 'Augusto Jorge Brandão Mendonça',
+        });
+    },
 });
 
 server.bindAsync('127.0.0.1:3002', grpc.ServerCredentials.createInsecure(), () => {
