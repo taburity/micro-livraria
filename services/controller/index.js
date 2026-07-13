@@ -6,6 +6,8 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
+console.log("Controller carregado");
+
 /**
  * Retorna a lista de produtos da loja via InventoryService
  */
@@ -42,6 +44,19 @@ app.get('/shipping/:cep', (req, res, next) => {
     );
 });
 
+app.get('/product/:id', (req, res, next) => {
+    // chama método do microsserviço
+    console.log("ENTROU NA ROTA PRODUCT:", req.params.id);
+    inventory.SearchProductByID({ id: Number(req.params.id) }, (err, product) => {
+
+        if (err) {
+            console.error(err);
+            res.status(500).send({ error: 'something failed :(' });
+        } else {
+            res.json(product);
+        }
+    });
+});
 /**
  * Inicia o router
  */

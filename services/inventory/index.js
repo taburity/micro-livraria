@@ -15,11 +15,23 @@ const server = new grpc.Server();
 
 // implementa os métodos do InventoryService
 server.addService(inventoryProto.InventoryService.service, {
-    searchAllProducts: (_, callback) => {
+    SearchAllProducts: (_, callback) => {
         callback(null, {
             products: products,
         });
     },
+SearchProductByID: (payload, callback) => {
+    console.log("ID recebido:", payload);
+
+    const product = products.find(
+        (product) => product.id == payload.request.id
+    );
+
+    callback(null, {
+        ...product,
+        student_name: 'Rianna'
+    });
+},
 });
 
 server.bindAsync('127.0.0.1:3002', grpc.ServerCredentials.createInsecure(), () => {
