@@ -3,6 +3,7 @@ const shipping = require('./shipping');
 const inventory = require('./inventory');
 const cors = require('cors');
 
+console.log("Funções de Inventory:", Object.keys(inventory));
 const app = express();
 app.use(cors());
 
@@ -47,4 +48,40 @@ app.get('/shipping/:cep', (req, res, next) => {
  */
 app.listen(3000, () => {
     console.log('Controller Service running on http://127.0.0.1:3000');
+});
+
+/**
+ * Retorna os detalhes de um produto específico
+ * integrando dados de Inventory e Shipping.
+ */
+app.get('/product/:id', (req, res) => {
+    const productId = parseInt(req.params.id);
+
+    inventory.SearchAllProducts({}, (err, data) => {
+        if (err || !data || !data.products) {
+            console.error("Erro no Inventory:", err);
+            return res.status(500).json({ error: "Erro ao consultar Inventory" });
+        }
+        const productData = data.products.find(p => p.id === productId);
+
+        if (!productData) {
+            return res.status(404).json({ error: "Produto não encontrado" });
+        }
+
+        shipping.GetShippingRate({ id: productId }, (err, shippingData) => {
+            if (err || !shippingData) {
+                console.error("Erro no Shipping:", err);
+                return res.status(500).json({ error: "Erro ao consultar Shipping" });
+            }
+
+            res.json({
+                id: productData.id,
+                name: productData.name,
+                quantity: productData.quantity,
+                price: shippingData.value, 
+                photo: productData.photo,
+                author: shippingData.author
+            });
+        });
+    });
 });
