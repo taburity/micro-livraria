@@ -116,7 +116,7 @@ curl -i -X GET http://localhost:3000/products
 
 ## Tarefa Prática #1: Implementando uma Nova Operação
 
-Nesta primeira tarefa, você irá implementar uma nova operação no serviço `Inventory`. Essa operação, chamada `SearchProductByID` vai pesquisar por um produto, dado o seu ID.
+Nesta primeira tarefa, você irá implementar uma nova operação no serviço `Inventory`. Essa operação, chamada `SearchProductByName`, vai pesquisar por um produto, dado o seu nome.
 
 Como descrito anteriormente, as assinaturas das operações de cada microsserviço são definidas em um arquivo `.proto`, no caso [proto/inventory.proto](https://github.com/aserg-ufmg/micro-livraria/blob/main/proto/inventory.proto).
 
@@ -127,23 +127,23 @@ Primeiro, você deve declarar a assinatura da nova operação. Para isso, inclua
 ```proto
 service InventoryService {
     rpc SearchAllProducts(Empty) returns (ProductsResponse) {}
-    rpc SearchProductByID(Payload) returns (ProductResponse) {}
+    rpc SearchProductByName(Payload) returns (ProductsResponse) {}
 }
 ```
 
-Em outras palavras, você está definindo que o microsserviço `Inventory` vai responder a uma nova requisição, chamada `SearchProductByID`, que tem como parâmetro de entrada um objeto do tipo `Payload` e como parâmetro de saída um objeto do tipo `ProductResponse`.
+Em outras palavras, você está definindo que o microsserviço `Inventory` vai responder a uma nova requisição, chamada `SearchProductByName`, que tem como parâmetro de entrada um objeto do tipo `Payload` e como parâmetro de saída um objeto do tipo `ProductsResponse`.
 
 #### Passo 2
 
-Inclua também no mesmo arquivo a declaração do tipo do objeto `Payload`, o qual apenas contém o ID do produto a ser pesquisado.
+Inclua também no mesmo arquivo a declaração do tipo do objeto `Payload`, o qual contém o nome do produto a ser pesquisado.
 
 ```proto
 message Payload {
-    int32 id = 1;
+    string name = 1;
 }
 ```
 
-Veja que `ProductResponse` -- isto é, o tipo de retorno da operação -- já está declarado mais abaixo no arquivo `proto`:
+Veja que `ProductsResponse` -- isto é, o tipo de retorno da operação -- já está declarado mais abaixo no arquivo `.proto`:
 
 ```proto
 message ProductsResponse {
@@ -151,7 +151,9 @@ message ProductsResponse {
 }
 ```
 
-Ou seja, a resposta da nossa requisição conterá um único campo, do tipo `ProductResponse`, que também já está implementando no mesmo arquivo:
+Ou seja, a resposta da nossa requisição poderá conter um ou mais produtos.
+
+O tipo `ProductResponse` também já está implementado no mesmo arquivo:
 
 ```proto
 message ProductResponse {
@@ -166,67 +168,59 @@ message ProductResponse {
 
 #### Passo 3
 
-Agora você deve implementar a função `SearchProductByID` no arquivo [services/inventory/index.js](https://github.com/aserg-ufmg/micro-livraria/blob/main/services/inventory/index.js).
+Agora você deve implementar a função `SearchProductByName` no arquivo [services/inventory/index.js](https://github.com/aserg-ufmg/micro-livraria/blob/main/services/inventory/index.js).
 
 Reforçando, no passo anterior, apenas declaramos a assinatura dessa função. Então, agora, vamos prover uma implementação para ela.
 
 Para isso, você precisa implementar a função requerida pelo segundo parâmetro da função `server.addService`, localizada na linha 17 do arquivo [services/inventory/index.js](https://github.com/aserg-ufmg/micro-livraria/blob/main/services/inventory/index.js).
 
-De forma semelhante à função `SearchAllProducts`, que já está implementada, você deve adicionar o corpo da função `SearchProductByID` com a lógica de pesquisa de produtos por ID. Este código deve ser adicionado logo após o `SearchAllProducts` na linha 23.
+De forma semelhante à função `SearchAllProducts`, que já está implementada, você deve adicionar o corpo da função `SearchProductByName` com a lógica de pesquisa de produtos por nome. Este código deve ser adicionado logo após o `SearchAllProducts`.
 
-```js
-    SearchProductByID: (payload, callback) => {
-        callback(
-            null,
-            products.find((product) => product.id == payload.request.id)
-        );
-    },
-```
+A busca deve considerar diferenças entre letras maiúsculas e minúsculas.
 
-A função acima usa o método `find` para pesquisar em `products` pelo ID de produto fornecido. Veja que:
+Por exemplo, as buscas por `Refactoring`, `refactoring` e `REFACTORING` devem encontrar o mesmo produto.
 
--   `payload` é o parâmetro de entrada do nosso serviço, conforme definido antes no arquivo .proto (passo 2). Ele armazena o ID do produto que queremos pesquisar. Para acessar esse ID basta escrever `payload.request.id`.
-
--   `product` é uma unidade de produto a ser pesquisado pela função `find` (nativa de JavaScript). Essa pesquisa é feita em todos os items da lista de produtos até que um primeiro `product` atenda a condição de busca, isto é `product.id == payload.request.id`.
-
--   [products](https://github.com/aserg-ufmg/micro-livraria/blob/main/services/inventory/products.json) é um arquivo JSON que contém a descrição dos livros à venda na livraria.
-
--   `callback` é uma função que deve ser invocada com dois parâmetros:
-    -   O primeiro parâmetro é um objeto de erro, caso ocorra. No nosso exemplo nenhum erro será retornado, portanto `null`.
-    -   O segundo parâmetro é o resultado da função, no nosso caso um `ProductResponse`, assim como definido no arquivo [proto/inventory.proto](https://github.com/aserg-ufmg/micro-livraria/blob/main/proto/inventory.proto).
+O resultado deve ser retornado através do `callback`.
 
 #### Passo 4
 
-Para finalizar, temos que incluir a função `SearchProductByID` em nosso `Controller`. Para isso, você deve incluir uma nova rota `/product/{id}` que receberá o ID do produto como parâmetro. Na definição da rota, você deve também incluir a chamada para o método definido no Passo 3.
+Para finalizar, temos que incluir a função `SearchProductByName` em nosso `Controller`. Para isso, você deve incluir uma nova rota `/products/name/{name}` que receberá o nome do produto como parâmetro. Na definição da rota, você deve também incluir a chamada para o método definido no Passo 3.
 
-Sendo mais específico, o seguinte trecho de código deve ser adicionado na linha 44 do arquivo [services/controller/index.js](https://github.com/aserg-ufmg/micro-livraria/blob/main/services/controller/index.js), logo após a rota `/shipping/:cep`.
+Por exemplo:
 
 ```js
-app.get('/product/:id', (req, res, next) => {
+app.get('/products/name/:name', (req, res, next) => {
     // Chama método do microsserviço.
-    inventory.SearchProductByID({ id: req.params.id }, (err, product) => {
+    inventory.SearchProductByName(
+        { name: req.params.name },
+        (err, product) => {
         // Se ocorrer algum erro de comunicação
         // com o microsserviço, retorna para o navegador.
-        if (err) {
-            console.error(err);
-            res.status(500).send({ error: 'something failed :(' });
-        } else {
+            if (err) {
+                console.error(err);
+                res.status(500).send({ error: 'something failed :(' });
+            } else {
             // Caso contrário, retorna resultado do
             // microsserviço (um arquivo JSON) com os dados
             // do produto pesquisado
-            res.json(product);
+                res.json(product);
+            }
         }
-    });
+    );
 });
 ```
 
 #### Passo 5
 
-Após implementar a função `SearchProductByID()`, adicione um campo `student_name` ao objeto retornado em `services/inventory/index.js`, com o valor sendo o seu primeiro nome. 
+Após implementar a função `SearchProductByName()`, adicione um campo `student_name` ao objeto retornado em `services/inventory/index.js`, com o valor sendo o seu primeiro nome.
 
-Finalize, efetuando uma chamada no novo endpoint da API: http://localhost:3000/product/1
+Finalize, efetuando uma chamada no novo endpoint da API:
 
-Para ficar claro: até aqui, apenas implementamos a nova operação no backend. A sua incorporação no frontend ficará pendente, pois requer mudar a interface Web, para, por exemplo, incluir um botão "Pesquisar Livro".
+```text
+http://localhost:3000/products/name/Refactoring
+```
+
+Para ficar claro: até aqui, apenas implementamos a nova operação no backend. A sua incorporação no frontend ficará pendente, pois requer mudar a interface Web, para, por exemplo, incluir um campo "Pesquisar Livro".
 
 **IMPORTANTE**: Se tudo funcionou corretamente, dê um **COMMIT & PUSH** (e certifique-se de que seu repositório no GitHub foi atualizado; isso é fundamental para seu trabalho ser devidamente corrigido).
 
