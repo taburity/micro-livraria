@@ -2,7 +2,9 @@ syntax = "proto3";
 
 service InventoryService {
     rpc SearchAllProducts(Empty) returns (ProductsResponse) {}
+    rpc SearchProductByName(Payload) returns (ProductsResponse) {}
 }
+
 
 message Empty{}
 
@@ -15,6 +17,11 @@ message ProductResponse {
     string author = 6;
 }
 
+message Payload {
+    string name = 1;
+}
+
 message ProductsResponse {
     repeated ProductResponse products = 1;
+    string student_name = 2;
 }

@@ -20,6 +20,20 @@ app.get('/products', (req, res, next) => {
     });
 });
 
+app.get('/products/name/:name', (req, res, next) => {
+    inventory.SearchProductByName(
+        { name: req.params.name },
+        (err, product) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send({ error: 'something failed :(' });
+            } else {
+                res.json(product);
+            }
+        }
+    );
+});
+
 /**
  * Consulta o frete de envio no ShippingService
  */
